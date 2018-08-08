@@ -15,15 +15,26 @@ In this version:
 
 ## requirements
 1. Install Python
-For instructions go to: [Installation Instructions](https://github.com/pettarin/python-on-windows/)
+- For a Mac Python is alredy included
+
+- For instructions on a PC go to: [Installation Instructions](https://github.com/pettarin/python-on-windows/)
 
 2. Install pip
-Once Python is installed download [get-pip.py](https://bootstrap.pypa.io/get-pip.py) to a folder on your computer. Open a command prompt window and navigate to the folder containing get-pip.py. Then run 
+- For a Mac:
+```
+sudo easy_install pip
+```
+
+- For a PC once Python is installed download [get-pip.py](https://bootstrap.pypa.io/get-pip.py) to a folder on your computer. Open a command prompt window and navigate to the folder containing get-pip.py. Then run 
 ```
 $ python get-pip.py
 ```
 
 3.  Install BeautifulSoup
+From the leadllech folder run the following command
+```
+$ sudo pip install beautifulsoup
+```
 
 ## usage
 
