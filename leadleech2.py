@@ -18,7 +18,7 @@ with open("peo_leads.csv", "w") as f:
         
         x=x*10
         print x
-        urls.append("https://www.indeed.com/jobs?q=trinet&start=" + repr(x))
+        urls.append("https://www.indeed.com/m/jobs?q=trinet&start=" + repr(x))
 
     #process sources
     for url in urls:
@@ -28,15 +28,19 @@ with open("peo_leads.csv", "w") as f:
       	
       	#print soup
 
-        with open("peo_leads.html", "w") as h:
+       # with open("peo_leads.html", "w") as h:
 
         #EXTRACT results from the the source
-        	results = soup.findAll('a', attrs={'class' : 'jobtitle turnstileLink'})
+    	results = soup.findAll('h2', attrs={'class' : 'jobTitle'})
+        
+
         	#h.write(html)
-        	h.write(html)
+      #  	h.write(html)
         #print results
        	#TRANSFORM results
         for result in results:
+            for a in result.findAll('a', href=True):
+                print(a['href'])
           #  print result
             #union_type = result.a.text.split(" - ")[0]
             #union_name = result.a.text.split(" - ")[1]
@@ -45,12 +49,12 @@ with open("peo_leads.csv", "w") as f:
             #union_detail_href = "http://www.unions.org" + result.a.get('href')
             
             #LOAD results into the data store
-            lead_link = "https://www.indeed.com" + result['href']
-            print lead_link
-            lead_record = lead_link#union_type + "," + union_name + "," + union_location + "," + union_members + "," + leadlink
+                lead_link = "https://www.indeed.com/m" + a['href']
+                print lead_link
+                lead_record = lead_link#union_type + "," + union_name + "," + union_location + "," + union_members + "," + leadlink
            # print union_record
             
-            f.write(lead_record + "\n")
+                f.write(lead_record + "\n")
         print "DONE"
 #<h3><a href="/unions/american-federation-of-government-employees/local-1208/18740" title="AFGE - GOVERNMENT EMPLOYEES Local 1208">AFGE - GOVERNMENT EMPLOYEES Local 1208</a></h3>
 #<p> <br />SANGER, CA 936579737 <a target="_blank" href="http://maps.google.com/maps?q=+SANGER%2C+CA+93657" class="xSmall blue" title="View map">Map</a>
