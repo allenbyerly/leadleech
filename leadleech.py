@@ -1,48 +1,54 @@
 #SOURCE = ALLEN BYERLY
 #DATE = 08/04/2018
 #VERSION = 0.1
-#NOTES = THIS VERSION OF THE SCRAPER PRODUCES LEADS OF THE TYPE "PEO"
+#NOTES = THIS VERSION SCRAPES STANDARD INDEED TO PRODUCES LEADS OF THE TYPE "PEO"
 
 from BeautifulSoup import BeautifulSoup
 import requests
+import re
 
-urls = []
+print ""
+print "STARTING LEADLEECH"
+print ""
+#OPEN a lead list file and EXTRACT keyword lines
+print 'Gathering Keywords' 
+f = open('leadlist.txt', "r")
+lines = f.readlines()
+f.close()
 
-#open peo_leads.csv to store extracted leads
+#OPEN peo_leads.csv to store extracted leads
 with open("peo_leads.csv", "w") as f:
-	#write extracted leads to the csv file
-    f.write("union_type,union_name,union_location,union_members,union_detail_href\n")
+    #WRITE extracted leads to the csv file
+    f.write("company,link,keyword\n")
     
-    #generate sources
-    for x in range(1,46):
-        print x
-        urls.append("http://www.unions.org/union_search.php?&abbr=&abbr_key=&bizcat=0&zip=95230&local=&zip_key=95230&pagenum=" + repr(x))
+    print 'Generating Searches'
+    for line in lines:
+        print '- Leeching leads for keyword:' + line.strip()    
+        #GENERATE sources
+        urls = []
+        for x in range(0,10):
+            x=x*10
+            urls.append("https://www.indeed.com/jobs?q=" + line.strip() + "&start=" + repr(x))
 
-    #process sources
-    for url in urls:
-        html = requests.get(url).content
-        soup = BeautifulSoup(html)
-
-        #EXTRACT results from the the source
-        results = soup.findAll(attrs = {"class" : "searchResult"  })
-
-       	#TRANSFORM results
-        for result in results:
-            union_type = result.a.text.split(" - ")[0]
-            union_name = result.a.text.split(" - ")[1]
-            union_location = result.p.text.split("Map", 1)[0]
-            union_members = result.p.text.split("Members: ", 1)[1]
-            union_detail_href = "http://www.unions.org" + result.a.get('href')
+        #PROCESS sources
+        for url in urls:
+            html = requests.get(url).content
+            soup = BeautifulSoup(html)
             
-            #LOAD results into the data store
-            union_record = union_type + "," + union_name + "," + union_location + "," + union_members + "," + union_detail_href
-            print union_record
-            f.write(union_record + "\n")
-            
+            #EXTRACT results from the the source
+            results = soup.findAll('div', {'class' : re.compile('.*row.*result.*')})
+
+            #TRANSFORM results into leads
+            for result in results: 
+                lead_keyword = line.strip()
+                lead_link = "https://www.indeed.com" + result.a['href']
+                lead_company = result.span.text
 
 
-#<h3><a href="/unions/american-federation-of-government-employees/local-1208/18740" title="AFGE - GOVERNMENT EMPLOYEES Local 1208">AFGE - GOVERNMENT EMPLOYEES Local 1208</a></h3>
-#<p> <br />SANGER, CA 936579737 <a target="_blank" href="http://maps.google.com/maps?q=+SANGER%2C+CA+93657" class="xSmall blue" title="View map">Map</a>
-#<br />ELODIA CASTRO                            <br />Union Members: 49                                        </p>
-#<div class="clear"></div>
-#</div>
+                lead_record = lead_company + "," + lead_link + "," + lead_keyword
+
+                #LOAD leads into the leads file
+                f.write(lead_record + "\n")
+print ""
+print "LEADLEECH COMPLETE"
+print ""
