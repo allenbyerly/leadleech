@@ -1,52 +1,54 @@
 #SOURCE = ALLEN BYERLY
 #DATE = 08/04/2018
 #VERSION = 0.1
-#NOTES = THIS VERSION OF THE SCRAPER PRODUCES LEADS OF THE TYPE "PEO"
+#NOTES = THIS VERSION SCRAPES STANDARD INDEED TO PRODUCES LEADS OF THE TYPE "PEO"
 
 from BeautifulSoup import BeautifulSoup
 import requests
+import re
 
-urls = []
-
-#open lead list file
+print ""
+print "STARTING LEADLEECH"
+print ""
+#OPEN a lead list file and EXTRACT keyword lines
+print 'Gathering Keywords' 
 f = open('leadlist.txt', "r")
-
-#read lead list file
 lines = f.readlines()
 f.close()
 
-
-
-#open peo_leads.csv to store extracted leads
+#OPEN peo_leads.csv to store extracted leads
 with open("peo_leads.csv", "w") as f:
-	#write extracted leads to the csv file
-    f.write("union_type,union_name,union_location,union_members,union_detail_href\n")
+    #WRITE extracted leads to the csv file
+    f.write("company,link,keyword\n")
     
+    print 'Generating Searches'
     for line in lines:
-        print line
-        #generate sources
-        for x in range(0,1):
-            
+        print '- Leeching leads for keyword:' + line.strip()    
+        #GENERATE sources
+        urls = []
+        for x in range(0,10):
             x=x*10
-           # print x
-            urls.append("https://www.indeed.com/m/jobs?q=" + line.strip() + "&start=" + repr(x))
+            urls.append("https://www.indeed.com/jobs?q=" + line.strip() + "&start=" + repr(x))
 
-            #process sources
-            for url in urls:
-             #   print url
-                html = requests.get(url).content
-                soup = BeautifulSoup(html)
+        #PROCESS sources
+        for url in urls:
+            html = requests.get(url).content
+            soup = BeautifulSoup(html)
+            
+            #EXTRACT results from the the source
+            results = soup.findAll('div', {'class' : re.compile('.*row.*result.*')})
 
-                #EXTRACT results from the the source
-                results = soup.findAll('h2', attrs={'class' : 'jobTitle'})
+            #TRANSFORM results into leads
+            for result in results: 
+                lead_keyword = line.strip()
+                lead_link = "https://www.indeed.com" + result.a['href']
+                lead_company = result.span.text
 
-                #TRANSFORM results
-                for result in results:
-                    for a in result.findAll('a', href=True):
-                        #print(a['href'])
 
-                        lead_link = "https://www.indeed.com/m/" + a['href']
-                        print lead_link
-                        lead_record = lead_link#union_type + "," + union_name + "," + union_location + "," + union_members + "," + leadlink
-                        # print union_record
-                        f.write(lead_record + "\n")
+                lead_record = lead_company + "," + lead_link + "," + lead_keyword
+
+                #LOAD leads into the leads file
+                f.write(lead_record + "\n")
+print ""
+print "LEADLEECH COMPLETE"
+print ""
