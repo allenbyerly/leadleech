@@ -1,12 +1,11 @@
 # leadleech
 scraper used to extract leads from various sources
 
-/------------------------
-Version: 0.1
-Date: 2018-8-8
-Author: Allen Byerly
-License: Apache version 2
-/------------------------
+
+* Version: 0.1
+* Date: 2018-8-8
+* Author: Allen Byerly
+* License: Apache version 2
 
 leadleach is a python script used to generate leads by scraping sources for leads based on pre-determined rules.
 
