@@ -34,7 +34,7 @@ Example:
 $ cd C:\leadleech
 ```
 
-#### step 3: open a command prompt and goto the leadleech folder:
+#### step 3: run leadleach.py:
 ```
 $ python leadleech.py
 ```
