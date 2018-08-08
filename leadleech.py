@@ -25,7 +25,7 @@ with open("peo_leads.csv", "w") as f:
     for line in lines:
         print line
         #generate sources
-        for x in range(0,10):
+        for x in range(0,1):
             
             x=x*10
            # print x
