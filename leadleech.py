@@ -3,9 +3,11 @@
 #VERSION = 0.1
 #NOTES = THIS VERSION SCRAPES STANDARD INDEED TO PRODUCES LEADS OF THE TYPE "PEO"
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import requests
 import re
+import pandas as pd
+import csv
 
 print ""
 print "STARTING LEADLEECH"
@@ -17,10 +19,12 @@ lines = f.readlines()
 f.close()
 
 #OPEN peo_leads.csv to store extracted leads
-with open("peo_leads.csv", "w") as f:
+with open("peo_leads.csv", "wb") as f:
     #WRITE extracted leads to the csv file
-    f.write("company,link,keyword\n")
     
+    writer = csv.writer(f, dialect='excel')
+    writer.writerow( ('company','joblink','keyword','site') )
+
     print 'Generating Searches'
     for line in lines:
         print '- Leeching leads for keyword:' + line.strip()    
@@ -32,8 +36,8 @@ with open("peo_leads.csv", "w") as f:
 
         #PROCESS sources
         for url in urls:
-            html = requests.get(url).content
-            soup = BeautifulSoup(html)
+            search_content = requests.get(url).content
+            soup = BeautifulSoup(search_content, 'html.parser')
             
             #EXTRACT results from the the source
             results = soup.findAll('div', {'class' : re.compile('.*row.*result.*')})
@@ -42,13 +46,34 @@ with open("peo_leads.csv", "w") as f:
             for result in results: 
                 lead_keyword = line.strip()
                 lead_link = "https://www.indeed.com" + result.a['href']
-                lead_company = result.span.text
+                lead_company = result.span.text.strip()
+                try:
+                    lead_company_profile =  "https://www.indeed.com" + result.span.a['href'] + '/about/'
+                    company_content = requests.get(lead_company_profile).content
 
+                    company_soup = BeautifulSoup(company_content, 'html.parser')
+                    #print lead_company_profile
+                    company_results = company_soup.find('dl', {'id' : 'cmp-company-details-sidebar'}).find('dt', text='Links')
+                    try:
+                        lead_site = company_results.find_next_sibling('dd').a['href']
+                    except:
+                        print 'no link'
+                        lead_site = ''
+                except:
+                    print 'no link'
+                    lead_site =  ''
 
-                lead_record = lead_company + "," + lead_link + "," + lead_keyword
+                    
+                writer.writerow( (lead_company,lead_link,lead_keyword, lead_site) )
+                f.flush()
+                lead_company = ''
+                lead_link = ''
+                lead_keyword = ''
+                lead_site = ''
+                #writer.writerow("company,joblink,keyword,link")
 
                 #LOAD leads into the leads file
-                f.write(lead_record + "\n")
+                #writer.writerow(lead_record.encode('utf-8'))
 print ""
 print "LEADLEECH COMPLETE"
 print ""
