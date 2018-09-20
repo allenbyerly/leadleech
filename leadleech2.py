@@ -68,8 +68,8 @@ with open("lead_urls.csv", "wb") as f:
                 if lead_site:
                     if lead_site not in url_list:
                     
-                        print lead_site
-                        print url_list
+                        #print lead_site
+                        #print url_list
                         url_list.append(lead_site)
                         writer.writerow([lead_site])
                         f.flush()
