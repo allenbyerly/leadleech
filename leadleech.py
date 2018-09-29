@@ -18,8 +18,8 @@ f = open('leadlist.txt', "r")
 lines = f.readlines()
 f.close()
 
-#OPEN peo_leads.csv to store extracted leads
-with open("peo_leads.csv", "wb") as f:
+#OPEN leads.csv to store extracted leads
+with open("leads.csv", "wb") as f:
     #WRITE extracted leads to the csv file
     
     writer = csv.writer(f, dialect='excel')
